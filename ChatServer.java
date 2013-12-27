@@ -148,16 +148,18 @@ public class ChatServer
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
 
+		System.out.println(message);
+		
 		if(message.charAt(0) == '/') {
 
-			String[] parsed = message.split(" |\\n");
+			message = message.replaceAll("(\\r|\\n)", "");
+			String[] parsed = message.split(" ");
 
 			// NICK
 			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
-				System.out.println("ERROR: The command /nick is not yet implemented");
+				//System.out.println("ERROR: The command /nick is not yet implemented");
 				
-				
-				
+				System.out.println(parsed[0] + "|||" + parsed[1] + "|||");
 				if(users.containsValue(parsed[1])) {
 					System.out.println("nick existente");
 				} else {
@@ -185,8 +187,7 @@ public class ChatServer
 
 		}
 
-		
-		System.out.println(sc.toString());
+		System.out.print(users.get(sc)+ "isto e um pequeno teste");
 		// System.out.print( message );
 		
 		String asd = message + " um texto meu\n";
