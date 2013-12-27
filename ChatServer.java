@@ -17,6 +17,12 @@ public class ChatServer
 	static private final CharsetDecoder decoder = charset.newDecoder();
 	
 	public static Hashtable<SocketChannel, String> users = new Hashtable<SocketChannel, String>();
+	public static Hashtable<SocketChannel, Integer> userState = new Hashtable<SocketChannel, Integer>();
+	
+	public static final Integer INIT = 1;
+	public static final Integer OUTSIDE = 2;
+	public static final Integer INSIDE = 3;
+	
 	
 	static public void main( String args[] ) throws Exception {
 		// Parse port from command line
@@ -68,7 +74,7 @@ public class ChatServer
 					// What kind of activity is it?
 					if (key.isAcceptable()) {
 
-						System.out.println("TESTE");
+						
 						// It's an incoming connection.  Register this socket with
 						// the Selector so we can listen for input on it
 						Socket s = ss.accept();
@@ -81,7 +87,8 @@ public class ChatServer
 
 						// Register it with the selector, for reading
 						sc.register( selector, SelectionKey.OP_READ );
-						users.put(sc, "asd");
+						//users.put(sc, "asd");
+						userState.put(sc, INIT);
 					} else if (key.isReadable()) {
 
 						SocketChannel sc = null;
@@ -148,46 +155,54 @@ public class ChatServer
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
 
-		System.out.println(message);
+		//System.out.println(message);
+		
+		message = message.replaceAll("(\\r|\\n)", "");
+		String[] parsed = message.split(" ");
+		
+		if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
+			//System.out.println("ERROR: The command /nick is not yet implemented");
+			if(users.containsValue(parsed[1])) {
+				// Nick exists
+				System.out.println("Nick wasn't changed");
+			} else {
+				//nick doesn't exists, changing users nick
+				users.put(sc, parsed[1]);
+				userState.put(sc, OUTSIDE);
+				System.out.println("User changed nick");
+			}
+		}
+		
+		if (parsed[0].equalsIgnoreCase("/join")) {
+			System.out.println("ERROR: The command /join is not yet implemented");
+		}
+		// LEAVE
+		if (parsed[0].equalsIgnoreCase("/leave")) {
+			System.out.println("ERROR: The command /leave is not yet implemented");
+		}
+		// BYE
+		if (parsed[0].equalsIgnoreCase("/bye")) {
+			System.out.println("ERROR: The command /bye is not yet implemented");
+		}
+		// PRIV
+		if (parsed[0].equalsIgnoreCase("/priv")) {
+			System.out.println("ERROR: The command /bye is not yet implemented");
+		}
 		
 		if(message.charAt(0) == '/') {
-
-			message = message.replaceAll("(\\r|\\n)", "");
-			String[] parsed = message.split(" ");
-
-			// NICK
-			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
-				//System.out.println("ERROR: The command /nick is not yet implemented");
-				
-				System.out.println(parsed[0] + "|||" + parsed[1] + "|||");
-				if(users.containsValue(parsed[1])) {
-					System.out.println("nick existente");
-				} else {
-					users.put(sc, parsed[1]);
-					System.out.println("MUDEI DE NICK!!");
-				}
-			}
-
-			// JOIN
-			if (parsed[0].equalsIgnoreCase("/join")) {
-				System.out.println("ERROR: The command /join is not yet implemented");
-			}
-			// LEAVE
-			if (parsed[0].equalsIgnoreCase("/leave")) {
-				System.out.println("ERROR: The command /leave is not yet implemented");
-			}
-			// BYE
-			if (parsed[0].equalsIgnoreCase("/bye")) {
-				System.out.println("ERROR: The command /bye is not yet implemented");
-			}
-			// PRIV
-			if (parsed[0].equalsIgnoreCase("/priv")) {
-				System.out.println("ERROR: The command /bye is not yet implemented");
-			}
-
+			System.out.println("String starts with //");
+		} else {
+			// Normal message
+			System.out.println("A normal message");
 		}
-
-		System.out.print(users.get(sc)+ "isto e um pequeno teste");
+		
+		
+		/*
+		if (parsed[0].equalsIgnoreCase("/nick") || parsed[0].equalsIgnoreCase("/join") || parsed[0].equalsIgnoreCase("/leave") || parsed[0].equalsIgnoreCase("/bye") || parsed[0].equalsIgnoreCase("/priv")) {
+			
+		}
+		 */
+		
 		// System.out.print( message );
 		
 		String asd = message + " um texto meu\n";
