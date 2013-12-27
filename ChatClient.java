@@ -1,8 +1,11 @@
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharsetDecoder;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 
@@ -17,8 +20,18 @@ public class ChatClient {
     // Se for necessário adicionar variáveis ao objecto ChatClient, devem
     // ser colocadas aqui
 
-
-
+    static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
+    //static private final CharsetDecoder decoder = charset.newDecoder();
+    
+    String hostname = "localhost";
+    
+    Socket clientSocket = new Socket( "localhost" , 10002);
+    
+    DataOutputStream outToServer =
+	         new DataOutputStream(clientSocket.getOutputStream());
+    
+    PrintWriter out =
+            new PrintWriter(clientSocket.getOutputStream(), true);
     
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
@@ -68,24 +81,32 @@ public class ChatClient {
     public void newMessage(String message) throws IOException {
         // PREENCHER AQUI com código que envia a mensagem ao servidor
 
-
-
+    	//outToServer.writeBytes(message + '\n');
+    	//outToServer.writeBytes(message);
+    	out.println(message);
     }
 
     
     // Método principal do objecto
     public void run() throws IOException {
         // PREENCHER AQUI
-
-
-
+    	BufferedReader s_in = null;
+    	s_in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    	String response;
+    	while ((response = (String) s_in.readLine()) != null) 
+        {
+            printMessage(response + '\n');
+    		//System.out.println( response );
+        }
+    	
     }
     
 
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *
     public static void main(String[] args) throws IOException {
-        ChatClient client = new ChatClient(args[0], Integer.parseInt(args[1]));
+        //ChatClient client = new ChatClient(args[0], Integer.parseInt(args[1]));
+        ChatClient client = new ChatClient("asd",22);
         client.run();
     }
 
