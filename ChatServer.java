@@ -18,6 +18,7 @@ public class ChatServer
 	
 	public static Hashtable<SocketChannel, String> users = new Hashtable<SocketChannel, String>();
 	public static Hashtable<SocketChannel, Integer> userState = new Hashtable<SocketChannel, Integer>();
+	public static Hashtable<SocketChannel, String> userChannel = new Hashtable<SocketChannel, String>();
 	
 	public static final Integer INIT = 1;
 	public static final Integer OUTSIDE = 2;
@@ -161,39 +162,89 @@ public class ChatServer
 		String[] parsed = message.split(" ");
 		
 		if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
-			//System.out.println("ERROR: The command /nick is not yet implemented");
+			System.out.println("WARNING: The command /nick is not warning people that user changes nick");
 			if(users.containsValue(parsed[1])) {
 				// Nick exists
 				System.out.println("Nick wasn't changed");
 			} else {
 				//nick doesn't exists, changing users nick
 				users.put(sc, parsed[1]);
-				userState.put(sc, OUTSIDE);
+				if(userState.get(sc) != INSIDE){
+					userState.put(sc, OUTSIDE);
+				}
 				System.out.println("User changed nick");
 			}
+			return true;
 		}
 		
-		if (parsed[0].equalsIgnoreCase("/join")) {
-			System.out.println("ERROR: The command /join is not yet implemented");
+		if (parsed[0].equalsIgnoreCase("/join") && parsed.length == 2) {
+			System.out.println("WARNING: The command /join is not warning people that user left/join channel");
+			userChannel.put(sc, parsed[1]);
+			userState.put(sc, INSIDE);
+			return true;
 		}
 		// LEAVE
 		if (parsed[0].equalsIgnoreCase("/leave")) {
-			System.out.println("ERROR: The command /leave is not yet implemented");
+			System.out.println("WARNING: The command /left is not warning people that user left channel");
+			if(userState.get(sc) == INSIDE) {
+				userState.remove(sc);
+			} else {
+				System.out.println("This user hasn't joined a channel");
+			}
+			return true;
 		}
 		// BYE
 		if (parsed[0].equalsIgnoreCase("/bye")) {
 			System.out.println("ERROR: The command /bye is not yet implemented");
+			return true;
 		}
 		// PRIV
 		if (parsed[0].equalsIgnoreCase("/priv")) {
 			System.out.println("ERROR: The command /bye is not yet implemented");
+			return true;
 		}
 		
-		if(message.charAt(0) == '/') {
-			System.out.println("String starts with //");
-		} else {
-			// Normal message
-			System.out.println("A normal message");
+		if(userState.get(sc) == INSIDE) {
+			// User is inside a channel
+			// This means that the user can send normal messages
+			if(message.charAt(1) == '/') {
+				System.out.println("String starts with //");
+				return true;
+			} else {
+				// Normal message
+				System.out.println("A normal message");
+				
+				String messageToSend = "MESSAGE " + users.get(sc) + " " + message +'\n';
+				
+				Enumeration keys = userChannel.keys();
+				
+				while (keys.hasMoreElements()){	
+					
+					Object key = keys.nextElement();
+					System.out.println(key.toString());
+					
+					if(userChannel.get(sc).equals(userChannel.get(key))) {
+						
+						
+						
+						SocketChannel sc_temp = (SocketChannel) key;
+						sendMessage(sc_temp, messageToSend);
+						/*
+						buffer.clear();
+						buffer.put(messageToSend.getBytes());
+						buffer.flip();
+						
+						while(buffer.hasRemaining()) {
+						    sc_temp.write(buffer);
+						}
+						*/
+					}
+					
+				}
+				
+				return true;
+			}
+			
 		}
 		
 		
@@ -205,7 +256,8 @@ public class ChatServer
 		
 		// System.out.print( message );
 		
-		String asd = message + " um texto meu\n";
+		/*
+		String asd = message + " um texto meu" + '\n';
 		buffer.clear();
 		buffer.put(asd.getBytes());
 		buffer.flip();
@@ -213,8 +265,20 @@ public class ChatServer
 		while(buffer.hasRemaining()) {
 		    sc.write(buffer);
 		}
-		
+		*/
 		
 		return true;
 	}
+	
+	public static void sendMessage(SocketChannel sc_to_send, String messageToSend) throws IOException {
+		
+		buffer.clear();
+		buffer.put(messageToSend.getBytes());
+		buffer.flip();
+		
+		while(buffer.hasRemaining()) {
+		    sc_to_send.write(buffer);
+		}
+	}
+	
 }

@@ -36,7 +36,21 @@ public class ChatClient {
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
     public void printMessage(final String message) {
-        chatArea.append(message);
+    	
+    	String[] parsed = message.split(" ");
+    	String toAppend = "";
+    	
+    	if(parsed[0].equals("MESSAGE")){
+    		toAppend = parsed[1] + ": ";
+    		String tempString = "MESSAGE " + parsed[1];
+    		for (int i = tempString.length(); i < message.length(); i++) {
+    			toAppend = toAppend + message.charAt(i);
+    		}
+    		
+    	}
+    	
+    	
+        chatArea.append(toAppend);
     }
 
     
