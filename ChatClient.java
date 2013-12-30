@@ -27,11 +27,7 @@ public class ChatClient {
     
     Socket clientSocket;
     
-    DataOutputStream outToServer =
-	         new DataOutputStream(clientSocket.getOutputStream());
-    
-    PrintWriter out =
-            new PrintWriter(clientSocket.getOutputStream(), true);
+    PrintWriter out;
     
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
@@ -111,7 +107,7 @@ public class ChatClient {
         // construtor, deve ser colocado aqui
 
         clientSocket = new Socket( server , port);
-
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
     }
 
 
