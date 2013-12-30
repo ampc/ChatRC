@@ -154,8 +154,8 @@ public class ChatServer
 
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
-		System.out.println(message);
-		System.out.println(command + " o comando");
+		//System.out.println(message);
+		//System.out.println(command + " o comando");
 		if (message.charAt(message.length()-1) == '\n') {
 			
 			if (command != null) {
