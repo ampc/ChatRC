@@ -154,18 +154,24 @@ public class ChatServer
 
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
-		//System.out.println(message);
-		//System.out.println(command + " o comando");
+		
 		if (message.charAt(message.length()-1) == '\n') {
 			
 			if (command != null) {
 				message = command + message;
 				command = null;
 			}
+			
 			message = message.replaceAll("(\\r|\\n)", "");
+			if(message.equals("")) {
+				return true;
+			}
 			String[] parsed = message.split(" ");
 			
 			// NICK
+			if(parsed.length == 0) {
+				return true;
+			}
 			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
 				//System.out.println("WARNING: The command /nick is not warning people that user changes nick");
 				if(users.containsValue(parsed[1])) {
