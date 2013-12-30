@@ -185,6 +185,8 @@ public class ChatServer
 					if(userState.get(sc) != INSIDE){
 						userState.put(sc, OUTSIDE);
 					}
+					
+					
 					System.out.println("User changed nick");
 					sendMessage(sc, OK);
 					
@@ -193,6 +195,11 @@ public class ChatServer
 			}
 			// JOIN
 			if (parsed[0].equalsIgnoreCase("/join") && parsed.length == 2) {
+				if(userState.get(sc).equals(INIT)) {
+					sendMessage(sc, ERROR);
+					return true;
+				}
+				
 				if(userState.get(sc).equals(INSIDE)) {
 					userLeave(sc, userChannel.get(sc));
 				}
