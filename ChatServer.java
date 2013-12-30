@@ -154,15 +154,18 @@ public class ChatServer
 
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
-		System.out.println(message);
-		System.out.println(command + " o comando");
+		
 		if (message.charAt(message.length()-1) == '\n') {
 			
 			if (command != null) {
 				message = command + message;
 				command = null;
 			}
+			
 			message = message.replaceAll("(\\r|\\n)", "");
+			if(message.equals("")) {
+				return true;
+			}
 			String[] parsed = message.split(" ");
 			
 			// NICK
