@@ -35,22 +35,47 @@ public class ChatClient {
     
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
-    public void printMessage(final String message) {
+    public void printMessage(final String input_message) {
+    	
+    	String message = input_message.replaceAll("(\\r|\\n)", "");
     	
     	String[] parsed = message.split(" ");
-    	String toAppend = "";
+    	String toAppend = message;
     	
     	if(parsed[0].equals("MESSAGE")){
+    		toAppend = "";
     		toAppend = parsed[1] + ": ";
     		String tempString = "MESSAGE " + parsed[1];
     		for (int i = tempString.length(); i < message.length(); i++) {
     			toAppend = toAppend + message.charAt(i);
     		}
-    		
+    	}
+    	if(parsed[0].equals("BYE")){
+    		toAppend = "";
+    		toAppend = "You have left the server. Cya soon! :D";
+    	}
+    	if(parsed[0].equals("LEFT")){
+    		toAppend = "";
+    		toAppend = "User " + parsed[1] + " has left the channel";
+    	}
+    	if(parsed[0].equals("JOINED")){
+    		toAppend = "";
+    		toAppend = "User " + parsed[1] + " has joined the channel";
+    	}
+    	if(parsed[0].equals("NEWNICK")){
+    		toAppend = "";
+    		toAppend = "User " + parsed[1] + " changed his nick to " + parsed[2];
+    	}
+    	if(parsed[0].equals("PRIVATE")){
+    		toAppend = "";
+    		toAppend = parsed[1] + "(priv): ";
+    		String tempString = "MESSAGE " + parsed[1];
+    		for (int i = tempString.length(); i < message.length(); i++) {
+    			toAppend = toAppend + message.charAt(i);
+    		}
     	}
     	
-    	
-        chatArea.append(toAppend);
+        chatArea.append(toAppend + '\n');
     }
 
     
