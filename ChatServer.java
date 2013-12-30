@@ -141,7 +141,7 @@ public class ChatServer
 		// Read the message to the buffer
 
 		Socket s = sc.socket();
-		buffer.clear();
+		//buffer.clear();
 		sc.read( buffer );
 		buffer.flip();
 		// If no data, close the connection
@@ -153,6 +153,7 @@ public class ChatServer
 		String message = decoder.decode(buffer).toString();
 		System.out.println(message);
 		if (message.contains("\n")){
+			buffer.clear();
 			message = message.replaceAll("(\\r|\\n)", "");
 			String[] parsed = message.split(" ");
 			
@@ -300,6 +301,9 @@ public class ChatServer
 				// User isn't in any channel
 				sendMessage(sc, ERROR);
 			}
+		} else {
+			// message doesn't contain \n
+			buffer.clear();
 		}
 		return true;
 	}
