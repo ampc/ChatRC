@@ -143,7 +143,8 @@ public class ChatServer
 		Socket s = sc.socket();
 		//buffer.clear();
 		sc.read( buffer );
-		buffer.flip();
+		//buffer.flip();
+		buffer.rewind();
 		// If no data, close the connection
 		if (buffer.limit()==0) {
 			return false;
@@ -152,7 +153,7 @@ public class ChatServer
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
 		System.out.println(message);
-		if (message.contains("\n")){
+		if (message.charAt(message.length()-1) == '\n') {
 			buffer.clear();
 			message = message.replaceAll("(\\r|\\n)", "");
 			String[] parsed = message.split(" ");
@@ -303,7 +304,7 @@ public class ChatServer
 			}
 		} else {
 			// message doesn't contain \n
-			buffer.clear();
+			
 		}
 		return true;
 	}
