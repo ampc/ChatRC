@@ -143,8 +143,8 @@ public class ChatServer
 		Socket s = sc.socket();
 		//buffer.clear();
 		sc.read( buffer );
-		//buffer.flip();
-		buffer.rewind();
+		buffer.flip();
+		// buffer.rewind();
 		// If no data, close the connection
 		if (buffer.limit()==0) {
 			return false;
@@ -304,7 +304,7 @@ public class ChatServer
 			}
 		} else {
 			// message doesn't contain \n
-			
+			buffer.rewind();
 		}
 		return true;
 	}
