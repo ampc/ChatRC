@@ -152,151 +152,155 @@ public class ChatServer
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
 		
-		message = message.replaceAll("(\\r|\\n)", "");
-		String[] parsed = message.split(" ");
-		
-		// NICK
-		if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
-			//System.out.println("WARNING: The command /nick is not warning people that user changes nick");
-			if(users.containsValue(parsed[1])) {
-				// Nick exists
-				System.out.println("Nick wasn't changed");
-				sendMessage(sc, ERROR);
-			} else {
-				//nick doesn't exists, changing users nick
-				userChangedNick(sc, users.get(sc), parsed[1]);
-				users.put(sc, parsed[1]);
-				if(userState.get(sc) != INSIDE){
-					userState.put(sc, OUTSIDE);
+		if (message.contains("\n")){
+			message = message.replaceAll("(\\r|\\n)", "");
+			String[] parsed = message.split(" ");
+			
+			// NICK
+			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
+				//System.out.println("WARNING: The command /nick is not warning people that user changes nick");
+				if(users.containsValue(parsed[1])) {
+					// Nick exists
+					System.out.println("Nick wasn't changed");
+					sendMessage(sc, ERROR);
+				} else {
+					//nick doesn't exists, changing users nick
+					userChangedNick(sc, users.get(sc), parsed[1]);
+					users.put(sc, parsed[1]);
+					if(userState.get(sc) != INSIDE){
+						userState.put(sc, OUTSIDE);
+					}
+					System.out.println("User changed nick");
+					sendMessage(sc, OK);
+					
 				}
-				System.out.println("User changed nick");
+				return true;
+			}
+			// JOIN
+			if (parsed[0].equalsIgnoreCase("/join") && parsed.length == 2) {
+				if(userState.get(sc).equals(INSIDE)) {
+					userLeave(sc, userChannel.get(sc));
+				}
+				
+				userChannel.put(sc, parsed[1]);
+				userState.put(sc, INSIDE);
 				sendMessage(sc, OK);
 				
+				userJoin(sc, parsed[1]);
+				
+				return true;
 			}
-			return true;
-		}
-		// JOIN
-		if (parsed[0].equalsIgnoreCase("/join") && parsed.length == 2) {
-			if(userState.get(sc).equals(INSIDE)) {
-				userLeave(sc, userChannel.get(sc));
-			}
-			
-			userChannel.put(sc, parsed[1]);
-			userState.put(sc, INSIDE);
-			sendMessage(sc, OK);
-			
-			userJoin(sc, parsed[1]);
-			
-			return true;
-		}
-		// LEAVE
-		if (parsed[0].equalsIgnoreCase("/leave")) {
-			if(userState.get(sc) == INSIDE) {
-				userLeave(sc, userChannel.get(sc));
-				userState.put(sc, OUTSIDE);
-				userChannel.remove(sc);
-				sendMessage(sc, OK);
-			} else {
-				System.out.println("This user hasn't joined a channel");
-				sendMessage(sc, ERROR);
-			}
-			return true;
-		}
-		// BYE
-		if (parsed[0].equalsIgnoreCase("/bye")) {
-			
-			if(userState.get(sc) == INSIDE) {
-				userLeave(sc, userChannel.get(sc));
-			}
-			userState.remove(sc);
-			users.remove(sc);
-			userChannel.remove(sc);
-			String str_temp = "BYE"+'\n';
-			sendMessage(sc, str_temp);
-			return false;
-		}
-		// PRIV
-		if (parsed[0].equalsIgnoreCase("/priv")) {
-			System.out.println("ERROR: The command /priv is not yet implemented");
-			
-			Enumeration keys = users.keys();
-			
-			SocketChannel sc_temp = null;
-			String nick = null;
-			while (keys.hasMoreElements()){	
-				Object key = keys.nextElement();
-				sc_temp = (SocketChannel) key;
-				if(users.get(key).equals(parsed[1])) {
-					nick = users.get(key);
-					break;
+			// LEAVE
+			if (parsed[0].equalsIgnoreCase("/leave")) {
+				if(userState.get(sc) == INSIDE) {
+					userLeave(sc, userChannel.get(sc));
+					userState.put(sc, OUTSIDE);
+					userChannel.remove(sc);
+					sendMessage(sc, OK);
+				} else {
+					System.out.println("This user hasn't joined a channel");
+					sendMessage(sc, ERROR);
 				}
-			}
-			
-			if(nick == null) {
-				sendMessage(sc, ERROR);
 				return true;
 			}
-			String messageToSend = "PRIVATE " + users.get(sc);
-			
-			for(int i = 2; i< parsed.length; i++){
-				messageToSend = messageToSend + " " + parsed[i];
+			// BYE
+			if (parsed[0].equalsIgnoreCase("/bye")) {
+				
+				if(userState.get(sc) == INSIDE) {
+					userLeave(sc, userChannel.get(sc));
+				}
+				userState.remove(sc);
+				users.remove(sc);
+				userChannel.remove(sc);
+				String str_temp = "BYE"+'\n';
+				sendMessage(sc, str_temp);
+				return false;
 			}
-			
-			
-			messageToSend = messageToSend + '\n';
-			System.out.println(messageToSend);
-			sendMessage(sc_temp, messageToSend);
-			sendMessage(sc, messageToSend);
-			return true;
-		}
-		
-		if(parsed[0].charAt(0) == '/') {
-			if(parsed[0].length() == 1) {
-				sendMessage(sc, ERROR);
-				return true;
-			} else {
-				if(parsed[0].charAt(1) != '/'){
+			// PRIV
+			if (parsed[0].equalsIgnoreCase("/priv")) {
+				
+				Enumeration keys = users.keys();
+				
+				SocketChannel sc_temp = null;
+				String nick = null;
+				while (keys.hasMoreElements()){	
+					Object key = keys.nextElement();
+					sc_temp = (SocketChannel) key;
+					if(users.get(key).equals(parsed[1])) {
+						nick = users.get(key);
+						break;
+					}
+				}
+				
+				if(nick == null) {
 					sendMessage(sc, ERROR);
 					return true;
 				}
+				String messageToSend = "PRIVATE " + users.get(sc);
+				
+				for(int i = 2; i< parsed.length; i++){
+					messageToSend = messageToSend + " " + parsed[i];
+				}
+				
+				
+				messageToSend = messageToSend + '\n';
+				System.out.println(messageToSend);
+				sendMessage(sc_temp, messageToSend);
+				sendMessage(sc, messageToSend);
+				return true;
 			}
 			
-		}
-		// MESSAGE
-		if(userState.get(sc) == INSIDE) {
-			// User is inside a channel
-			// This means that the user can send normal messages
-			
-			String messageToSend = "MESSAGE " + users.get(sc) + " " + message +'\n';
-			
-			if(parsed[0].length()>1){
-				if(parsed[0].charAt(1) == '/') {
-					System.out.println("String starts with //");
-					
-					String str_tempString = "";
-					for (int i = 1; i < message.length(); i++) {
-						str_tempString = str_tempString + message.charAt(i);
+			if(parsed[0].charAt(0) == '/') {
+				if(parsed[0].length() == 1) {
+					sendMessage(sc, ERROR);
+					return true;
+				} else {
+					if(parsed[0].charAt(1) != '/'){
+						sendMessage(sc, ERROR);
+						return true;
 					}
-					messageToSend = "MESSAGE " + users.get(sc) + " " + str_tempString +'\n';
 				}
-			} 
-			
-			// Normal message
-			System.out.println("A normal message");
-			
-			Enumeration keys = userChannel.keys();
-			
-			while (keys.hasMoreElements()){	
-				Object key = keys.nextElement();
-				//System.out.println(key.toString());
-				if(userChannel.get(sc).equals(userChannel.get(key))) {
-					SocketChannel sc_temp = (SocketChannel) key;
-					sendMessage(sc_temp, messageToSend);
-				}
+				
 			}
-			
-			return true;
-		}		
+			// MESSAGE
+			if(userState.get(sc) == INSIDE) {
+				// User is inside a channel
+				// This means that the user can send normal messages
+				
+				String messageToSend = "MESSAGE " + users.get(sc) + " " + message +'\n';
+				
+				if(parsed[0].length()>1){
+					if(parsed[0].charAt(1) == '/') {
+						System.out.println("String starts with //");
+						
+						String str_tempString = "";
+						for (int i = 1; i < message.length(); i++) {
+							str_tempString = str_tempString + message.charAt(i);
+						}
+						messageToSend = "MESSAGE " + users.get(sc) + " " + str_tempString +'\n';
+					}
+				} 
+				
+				// Normal message
+				System.out.println("A normal message");
+				
+				Enumeration keys = userChannel.keys();
+				
+				while (keys.hasMoreElements()){	
+					Object key = keys.nextElement();
+					//System.out.println(key.toString());
+					if(userChannel.get(sc).equals(userChannel.get(key))) {
+						SocketChannel sc_temp = (SocketChannel) key;
+						sendMessage(sc_temp, messageToSend);
+					}
+				}
+				
+				return true;
+			} else {
+				// User isn't in any channel
+				sendMessage(sc, ERROR);
+			}
+		}
 		return true;
 	}
 	
