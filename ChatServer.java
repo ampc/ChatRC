@@ -155,16 +155,15 @@ public class ChatServer
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
 		System.out.println(message);
+		System.out.println(command + " o comando");
 		if (message.charAt(message.length()-1) == '\n') {
-			message = message.replaceAll("(\\r|\\n)", "");
-			String[] parsed = message.split(" ");
 			
 			if (command != null) {
 				message = command + message;
 				command = null;
 			}
-			
-			
+			message = message.replaceAll("(\\r|\\n)", "");
+			String[] parsed = message.split(" ");
 			
 			// NICK
 			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
@@ -312,7 +311,12 @@ public class ChatServer
 			}
 		} else {
 			// message doesn't contain \n
-			command = command + message;
+			if(command == null) {
+				command = message;
+			} else {
+				command = command + message;
+			}
+			
 		}
 		return true;
 	}
