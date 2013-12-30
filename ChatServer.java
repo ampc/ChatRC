@@ -151,7 +151,7 @@ public class ChatServer
 
 		// Decode and print the message to stdout
 		String message = decoder.decode(buffer).toString();
-		
+		System.out.println(message);
 		if (message.contains("\n")){
 			message = message.replaceAll("(\\r|\\n)", "");
 			String[] parsed = message.split(" ");
