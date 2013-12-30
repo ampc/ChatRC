@@ -27,6 +27,8 @@ public class ChatServer
 	public static final String OK = "OK" + '\n';
 	public static final String ERROR = "ERROR" + '\n';
 	
+	public static String command = null;
+	
 	static public void main( String args[] ) throws Exception {
 		// Parse port from command line
 		int port = Integer.parseInt( args[0] );
@@ -141,7 +143,7 @@ public class ChatServer
 		// Read the message to the buffer
 
 		Socket s = sc.socket();
-		//buffer.clear();
+		buffer.clear();
 		sc.read( buffer );
 		buffer.flip();
 		// buffer.rewind();
@@ -154,9 +156,15 @@ public class ChatServer
 		String message = decoder.decode(buffer).toString();
 		System.out.println(message);
 		if (message.charAt(message.length()-1) == '\n') {
-			buffer.clear();
 			message = message.replaceAll("(\\r|\\n)", "");
 			String[] parsed = message.split(" ");
+			
+			if (command != null) {
+				message = command + message;
+				command = null;
+			}
+			
+			
 			
 			// NICK
 			if (parsed[0].equalsIgnoreCase("/nick") && parsed.length == 2) {
@@ -304,7 +312,7 @@ public class ChatServer
 			}
 		} else {
 			// message doesn't contain \n
-			buffer.rewind();
+			command = command + message;
 		}
 		return true;
 	}
