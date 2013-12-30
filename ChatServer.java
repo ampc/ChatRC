@@ -29,12 +29,8 @@ public class ChatServer
 	
 	static public void main( String args[] ) throws Exception {
 		// Parse port from command line
-		//int port = Integer.parseInt( args[0] );
-		
-		
-		Hashtable channels = new Hashtable();
-		
-		int port = 10002;
+		int port = Integer.parseInt( args[0] );
+		//int port = 10002;
 		try {
 			// Instead of creating a ServerSocket, create a ServerSocketChannel
 			ServerSocketChannel ssc = ServerSocketChannel.open();
@@ -250,6 +246,7 @@ public class ChatServer
 			messageToSend = messageToSend + '\n';
 			System.out.println(messageToSend);
 			sendMessage(sc_temp, messageToSend);
+			sendMessage(sc, messageToSend);
 			return true;
 		}
 		

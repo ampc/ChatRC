@@ -25,7 +25,7 @@ public class ChatClient {
     
     String hostname = "localhost";
     
-    Socket clientSocket = new Socket( "localhost" , 10002);
+    Socket clientSocket;
     
     DataOutputStream outToServer =
 	         new DataOutputStream(clientSocket.getOutputStream());
@@ -110,7 +110,7 @@ public class ChatClient {
         // Se for necessário adicionar código de inicialização ao
         // construtor, deve ser colocado aqui
 
-
+        clientSocket = new Socket( server , port);
 
     }
 
@@ -144,8 +144,8 @@ public class ChatClient {
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *
     public static void main(String[] args) throws IOException {
-        //ChatClient client = new ChatClient(args[0], Integer.parseInt(args[1]));
-        ChatClient client = new ChatClient("asd",22);
+        ChatClient client = new ChatClient(args[0], Integer.parseInt(args[1]));
+        //ChatClient client = new ChatClient("asd",22);
         client.run();
     }
 
